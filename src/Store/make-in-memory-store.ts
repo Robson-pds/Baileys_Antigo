@@ -353,6 +353,67 @@ export default (
 				const json = JSON.parse(jsonStr)
 				fromJSON(json)
 			}
+		},
+		writeToMultiFiles: (folder: string) => {
+			// require fs here so that in case "fs" is not available -- the app does not crash
+			const { existsSync, mkdirSync, writeFileSync } = require('fs')
+			if (folder.includes('.json')){
+					writeFileSync(folder, JSON.stringify(toJSON()));
+			} else {
+				if (!existsSync(folder)) {
+						mkdirSync(folder, { recursive: true });
+				}
+
+				writeFileSync(folder + '/chats.json',
+						JSON.stringify(chats)
+				);
+				writeFileSync(folder + '/contacts.json',
+						JSON.stringify(contacts)
+				);
+				writeFileSync(folder + '/messages.json',
+						JSON.stringify(messages)
+				);
+			}
+		},
+		readFromMultiFiles: (folder: string) => {
+			// require fs here so that in case "fs" is not available -- the app does not crash
+			const { readFileSync, existsSync } = require('fs');
+			if (folder.includes('.json')){
+					if(existsSync(folder)) {
+						logger.debug({ folder }, 'reading from file')
+						const jsonStr = readFileSync(folder, { encoding: 'utf-8' })
+						const json = JSON.parse(jsonStr)
+						fromJSON(json)
+					}
+			} else {
+				if (existsSync(folder)) {
+					logger.debug({ folder }, 'reading from file');
+					let chats = [];
+					if (!existsSync(folder + '/chats.json')) {
+						chats = JSON.parse(
+								readFileSync(folder + '/chats.json', { encoding: 'utf-8' })
+						);
+					}
+					let contacts = {};
+					if (!existsSync(folder + '/contacts.json')) {
+						contacts = JSON.parse(
+								readFileSync(folder + '/contacts.json', { encoding: 'utf-8' })
+						);
+					}
+					let messages = {};
+					if (!existsSync(folder + '/messages.json')) {
+						messages = JSON.parse(
+								readFileSync(folder + '/messages.json', { encoding: 'utf-8' })
+						);
+					}
+
+					fromJSON({
+							chats: chats,
+							contacts: contacts,
+							messages: messages,
+					});
+				}
+			}
 		}
 	}
 }
