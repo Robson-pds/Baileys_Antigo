@@ -58,6 +58,7 @@ export const makeSocket = ({
 	const uqTagId = generateMdTagPrefix()
 	const generateMessageTag = () => `${uqTagId}${epoch++}`
 
+	// @ts-ignore
 	const sendPromise = promisify<void>(ws.send)
 	/** send a raw buffer */
 	const sendRawMessage = async(data: Uint8Array | Buffer) => {
@@ -70,6 +71,7 @@ export const makeSocket = ({
 			connectTimeoutMs,
 			async(resolve, reject) => {
 				try {
+					// @ts-ignore	
 					await sendPromise.call(ws, bytes)
 					resolve()
 				} catch(error) {
